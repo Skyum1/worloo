@@ -39,8 +39,13 @@
 		$(document).ready(function () {
             var randImg = "img/img" + rand(1, 22) + ".jpg";
             $("#imgBack").attr("src", randImg);
+
+            $("#btn_excel").click(function () {
+                location.href = "https://docs.google.com/spreadsheets/d/1nLOgDvbwzmkhevb1U23UTyKXbC0d-MRD9ahijYrkDJ0/edit#gid=0"; 
+            })
 		});
 
+        $("#btn_excel").click
         
 	
         function rand(min, max) {
@@ -146,6 +151,6 @@
             </table>
         </div>
     </div>
-
+    <button id="btn_excel">우린 뭐하는 사람들?</button>
 </body>
 </html>
