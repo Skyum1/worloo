@@ -4,7 +4,21 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 	<style>
         body {
-            background-image: url("img/background.jpg");
+            
+        }
+        
+        #back {
+            position : relative;
+        }
+
+        #inContents {
+            position: absolute;
+            top : -1px
+        }
+
+        #imgBack {
+            width: 800px;
+            height: 1200px;
         }
 	</style>
 </head>
@@ -13,33 +27,41 @@
     <script>
 		
 		$(document).ready(function () {
-			
+            var randImg = "img/img" + rand(1, 23) + ".jpg";
+            $("#imgBack").attr("src", randImg);
 		});
 	
+        function rand(min, max) {
+             return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
         //퇴사예정예정자 : 자바 맥날 지지 써리 쪼오 맹고 야생 얼탱 치즈
         //퇴사예정자 : 곤듀 은뚜
 
     </script>
-    <div>
-        <table>
-            <tr>
-                <td>
-                    <h1>퇴사예정자 :</h1>
-                </td>
-                <td>
-                    <h2>곤듀 은뚜 </h2>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h1>퇴사예정예정자 :</h1>
-                </td>
-                <td>
-                    <h2>자바 맥날 지지 써리 쪼오 맹고 야생 얼탱 치즈 </h2>
-                </td>
-            </tr>
-        </table>
+    <div id="back">
+        <img id="imgBack">
+
+        <div id="inContents">
+            <table>
+                <tr>
+                    <td>
+                        <h1>퇴사예정자 :</h1>
+                    </td>
+                    <td>
+                        <h2>곤듀 은뚜 </h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h1>퇴사예정예정자 :</h1>
+                    </td>
+                    <td>
+                        <h2>자바 맥날 지지 써리 쪼오 맹고 야생 얼탱 치즈 </h2>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
-	
+
 </body>
 </html>
