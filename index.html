@@ -2,6 +2,7 @@
 <html>
 <head>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <link href="btn.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
@@ -30,6 +31,7 @@
         table {
             background-color: #bbdefb60;
         }
+
 	</style>
 </head>
 <body>
@@ -44,9 +46,6 @@
                 location.href = "https://docs.google.com/spreadsheets/d/1nLOgDvbwzmkhevb1U23UTyKXbC0d-MRD9ahijYrkDJ0/edit#gid=0"; 
             })
 		});
-
-        $("#btn_excel").click
-        
 	
         function rand(min, max) {
              return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -136,6 +135,6 @@
             </table>
         </div>
     </div>
-    <button id="btn_excel">우린 뭐하는 사람들?</button>
+    <button class="btn cyan rounded" id="btn_excel">우린 뭐하는 사람들?</button>
 </body>
 </html>
