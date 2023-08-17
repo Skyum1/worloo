@@ -19,17 +19,41 @@
 
         #inContents {
             position: absolute;
-            top : -1px
+            top : 0px;
+            width: 800px;
+            height: 1200px;
         }
 
         #imgBack {
             width: 800px;
-            height: 1200px;
+            height: 1100px;
             opacity: 0.7;
         }
 
         table {
             background-color: #bbdefb60;
+        }
+
+        #main {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            text-align: center;
+            width: 1024px;
+            height: 1280px;
+            background-image: url("img/mainPicture.jpg");
+        }
+
+        #txtExplain {
+            text-align: center;
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            width: 50%;
+            background-color: rgba(245, 245, 220, 0.425);
+            border-radius: 10px;
         }
 
 	</style>
@@ -44,6 +68,13 @@
 
             $("#btn_excel").click(function () {
                 location.href = "https://docs.google.com/spreadsheets/d/1nLOgDvbwzmkhevb1U23UTyKXbC0d-MRD9ahijYrkDJ0/edit#gid=0"; 
+            })
+
+            $("btn_main").click(function () {
+                $("#main").show();
+            })
+            $("#main").click(function () {
+                $("#main").hide();
             })
 		});
 	
@@ -134,7 +165,16 @@
                
             </table>
         </div>
+        
     </div>
-    <button class="btn cyan rounded" id="btn_excel">우린 뭐하는 사람들?</button>
+    <div>
+        <button class="btn cyan rounded" id="btn_excel">우린 뭐하는 사람들?</button>
+        <button class="btn red rounded" id="btn_main">절대 클릭하지 마시오!!</button>
+    </div>
+    <div id="main">
+        <div id="txtExplain">
+            아무 곳에나 클릭하시오.
+        </div>
+    </div>
 </body>
 </html>
