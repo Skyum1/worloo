@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KakaoTalk Chat Analysis</title>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <div id="result">로딩중입니다......</div>
+    <div id="resultList"></div>
+    <script>
+        //GitHub raw 파일의 URL
+        const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/talkTest.txt";
+
+        // fetch 함수를 사용하여 파일 가져오기
+        fetch(rawFileURL)
+        .then(response => {
+            if (!response.ok) {
+            throw new Error(`네트워크 오류: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(data => {
+            analyzeChatLog(data);
+        })
+        .catch(error => {
+            console.error("파일을 가져오는 동안 오류가 발생했습니다.", error);
+        });
+
+        // 모든 데이터
+        var chatDateCnt = {};
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const chatHTML = e.target.result;
+                    //const chatDocument = new DOMParser().parseFromString(chatHTML, 'text/html');
+                    analyzeChatLog(e.target.result);
+                };
+
+                reader.readAsText(file);
+            }
+        });
+
+        function analyzeChatLog(chat) {
+
+            var chatDay = {};
+            var curDate = "1900년 1월 1일";
+            var startDate = null;
+            const userRegex = /\[(.*? \d{2}? .*?)\]/g;
+            const dateRegex = /(--------------- \d{4}년 \d{1,2}월 \d{1,2}일 .*?요일 ---------------)/g;
+            const chatList = chat.split('\n');
+            const resultElement = document.getElementById('result');
+
+            resultElement.innerHTML = "로딩중입니다......";
+            
+            for(const chatTemp of chatList) {
+                //console.log(chatTemp);
+                var date = chatTemp.match(dateRegex);
+                var user = chatTemp.match(userRegex);
+                if(date != null) {
+                    var dt = date[0].replaceAll('-','');
+                    dt = dt.slice(1,-4).replaceAll('년 ','-').replaceAll('월 ','-').replaceAll('일 ','');
+                    if(curDate != "1900년 1월 1일") chatDateCnt[curDate] = chatDay;
+                    curDate = dt;
+                    chatDay = {};
+
+                    if(startDate == null) {
+                        startDate = dt;
+                    }
+                }
+                
+                if(user != null) {
+                    if(user in chatDay) chatDay[user]++;
+                    else chatDay[user] = 1;
+                }
+                
+            }
+
+            chatDateCnt[curDate] = chatDay;
+
+            for(var key in chatDateCnt) {
+                var str = "";
+                for(var value in chatDateCnt[key]) {
+                    str += value + chatDateCnt[key][value] + '\n';
+                }
+            }
+
+            // 잘못된 파일 혹은 채팅로그가 없을 시 데이터x 알림
+            if(chatDateCnt == null) {
+                alert("데이터가 없습니다.");
+                return;
+            }
+
+            // 결과를 출력합니다.
+            resultElement.innerHTML = '<h2>채팅 통계</h2>';
+            resultElement.innerHTML += "<input type='date' id='startDate'></input>";
+            resultElement.innerHTML += "<p> ~ </p>";
+            resultElement.innerHTML += "<input type='date' id='endDate'></input>";
+            resultElement.innerHTML += "<button id='searchBtn' onclick='showResult();'>통계 보기!!!!</button>";
+            
+            document.getElementById("startDate").value = convertDate(startDate);
+            document.getElementById("endDate").value = convertDate(curDate);
+            
+        }
+
+        function convertDate(date) {
+            var dt = date.split('-');
+            var result = "";
+            if(dt.length != 3) return;
+            if(dt[1] < 10) result += dt[0] + '-0' + dt[1];
+            else result += dt[0] + '-' + dt[1];           
+
+            if(dt[2] < 10) result += '-0' + dt[2];
+            else result += '-' + dt[2];  
+
+            return result;
+        }
+
+        function showResult() {
+            var resultDic = {};
+            var startDt = new Date(document.getElementById("startDate").value);
+            var endDt = new Date(document.getElementById("endDate").value);
+            var sorted;
+            var resultHtml = "";
+
+            // 값 없을 시 return;
+            if(chatDateCnt == null) {
+                alert("데이터가 없습니다.");
+                return;
+            }
+
+            for(var date in chatDateCnt) {
+                var cur = new Date(convertDate(date));
+                if(cur >= startDt && cur <= endDt) {
+                    for(var user in chatDateCnt[date]) {
+                        if(user in resultDic) resultDic[user] += chatDateCnt[date][user];
+                        else resultDic[user] = chatDateCnt[date][user];
+                    }
+                }
+            }
+
+            sorted = Object.entries(resultDic).sort((a,b) => b[1] - a[1]);
+            for(var value of sorted) {
+                resultHtml += value[0] + " : " + value[1] + '<br>';
+            }
+
+            document.getElementById('resultList').innerHTML = resultHtml;
+        }
+    </script>
+</body>
+</html>
