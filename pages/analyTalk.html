@@ -7,7 +7,7 @@
 </head>
 <body>
     <input type="file" id="fileInput">
-    <div id="result"></div>
+    <div id="result">로딩중입니다......</div>
     <div id="resultList"></div>
     <script>
         //GitHub raw 파일의 URL
@@ -54,8 +54,6 @@
             const dateRegex = /(--------------- \d{4}년 \d{1,2}월 \d{1,2}일 .*?요일 ---------------)/g;
             const chatList = chat.split('\n');
             const resultElement = document.getElementById('result');
-            
-            resultElement.innerHTML = "로딩 중입니다....";
 
             for(const chatTemp of chatList) {
                 //console.log(chatTemp);
