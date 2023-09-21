@@ -42,7 +42,7 @@
             text-align: center;
             width: 1200px;
             height: 1700px;
-            background-image: url("img/mainPicture12001700.jpg");
+            background-size: cover;
         }
 
         #txtExplain {
@@ -65,6 +65,9 @@
 		
 		$(document).ready(function () {
             var randImg = "img/img" + rand(1, 22) + ".jpg";
+            var randMainImg = "img/main" + rand(1,6) + ".jpg";
+
+            $("#main").css("background-image", "url(" + randMainImg + ")");
             $("#imgBack").attr("src", randImg);
 
             $("#btn_excel").click(function () {
@@ -104,14 +107,6 @@
         
         <div id="inContents">
             <table>
-		<tr>
-                    <td>
-                        <h1>퇴사자 :</h1>
-                    </td>
-                    <td>
-                        <h2>야생</h2>
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <h1>퇴사예정자 :</h1>
