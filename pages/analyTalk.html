@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../btn.css" rel="stylesheet">
     <link href="../styles.css?ver=1" type="text/css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
     <title>KakaoTalk Chat Analysis</title>
 </head>
 <body>
@@ -142,7 +143,12 @@
 
             sorted = Object.entries(resultDic).sort((a,b) => b[1] - a[1]);
             for(var value of sorted) {
-                resultHtml += rank + ". " + value[0] + " : " + value[1] + '<br>';
+                if(rank <= 3) {
+                    resultHtml += "<h" + rank + ">" + rank + "등!!! " + value[0] + " : " + value[1] + "</h" + rank + ">" + '<br>';
+                }
+                else {
+                    resultHtml += rank + ". " + value[0] + " : " + value[1] + '<br>';
+                }
                 rank++;
             }
 
@@ -157,6 +163,6 @@
     <br>
     <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
     <br>
-    <div id="resultList" style="margin-top: 50px;"></div>
+    <div id="resultList" class="resultList" style="margin-top: 50px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
 </body>
 </html>

@@ -10843,4 +10843,10 @@ textarea.form-control-lg {
   .result {
     position: absolute;
   }
+
+  .resultList {
+    font-family: 'Jua', sans-serif;
+    letter-spacing: 0.1em;
+    color: #37374f;
+  }
 }
