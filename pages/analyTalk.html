@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../btn.css" rel="stylesheet">
+    <link href="../styles.css?ver=1" type="text/css" rel="stylesheet">
     <title>KakaoTalk Chat Analysis</title>
 </head>
 <body>
-    <input type="file" id="fileInput">
-    <div id="result">로딩중입니다......</div>
-    <div id="resultList"></div>
     <script>
         //GitHub raw 파일의 URL
         const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/talkTest.txt";
@@ -94,11 +93,10 @@
             }
 
             // 결과를 출력합니다.
-            resultElement.innerHTML = '<h2>채팅 통계</h2>';
-            resultElement.innerHTML += "<input type='date' id='startDate'></input>";
-            resultElement.innerHTML += "<p> ~ </p>";
+            resultElement.innerHTML = "<input type='date' id='startDate' ></input>";
+            resultElement.innerHTML += "<p style='margin-left:8px; margin-right:8px;'> ~ </p>";
             resultElement.innerHTML += "<input type='date' id='endDate'></input>";
-            resultElement.innerHTML += "<button id='searchBtn' onclick='showResult();'>통계 보기!!!!</button>";
+            resultElement.innerHTML += "<button id='searchBtn' onclick='showResult();' class='btn red rounded' style='margin-top:-5px;'>통계 보기!!!!</button>";
             
             document.getElementById("startDate").value = convertDate(startDate);
             document.getElementById("endDate").value = convertDate(curDate);
@@ -124,6 +122,7 @@
             var endDt = new Date(document.getElementById("endDate").value);
             var sorted;
             var resultHtml = "";
+            var rank = 1;
 
             // 값 없을 시 return;
             if(chatDateCnt == null) {
@@ -143,11 +142,21 @@
 
             sorted = Object.entries(resultDic).sort((a,b) => b[1] - a[1]);
             for(var value of sorted) {
-                resultHtml += value[0] + " : " + value[1] + '<br>';
+                resultHtml += rank + ". " + value[0] + " : " + value[1] + '<br>';
+                rank++;
             }
 
             document.getElementById('resultList').innerHTML = resultHtml;
         }
     </script>
+
+    <h1>채팅 통계</h1>
+    <div class="filebox">
+        <input type="file" id="fileInput">
+    </div>
+    <br>
+    <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
+    <br>
+    <div id="resultList" style="margin-top: 50px;"></div>
 </body>
 </html>
