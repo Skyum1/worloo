@@ -9,6 +9,15 @@
     <title>KakaoTalk Chat Analysis</title>
 </head>
 <body>
+    <h1>채팅 통계</h1>
+    <div class="filebox">
+        <input type="file" id="fileInput">
+    </div>
+    <br>
+    <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
+    <br>
+    <div id="resultList" class="resultList" style="margin-top: 100px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
+    
     <script>
         //GitHub raw 파일의 URL
         const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/talkTest.txt";
@@ -36,6 +45,7 @@
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
+                    alert("adsfasdf");
                     const chatHTML = e.target.result;
                     //const chatDocument = new DOMParser().parseFromString(chatHTML, 'text/html');
                     analyzeChatLog(e.target.result);
@@ -155,14 +165,5 @@
             document.getElementById('resultList').innerHTML = resultHtml;
         }
     </script>
-
-    <h1>채팅 통계</h1>
-    <div class="filebox">
-        <input type="file" id="fileInput">
-    </div>
-    <br>
-    <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
-    <br>
-    <div id="resultList" class="resultList" style="margin-top: 100px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
 </body>
 </html>
