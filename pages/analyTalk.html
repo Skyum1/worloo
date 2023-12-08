@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
     <link href="../btn.css" rel="stylesheet">
     <link href="../styles.css?ver=1" type="text/css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
@@ -17,7 +18,8 @@
     <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
     <br>
     <div id="resultList" class="resultList" style="margin-top: 100px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
-
+    <canvas id="pie-chart" width="800" height="800"></canvas>
+    <canvas id="line-chart" height="150"></canvas>
     <script>
         //GitHub raw 파일의 URL
         const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/talkTest.txt";
@@ -39,6 +41,8 @@
 
         // 모든 데이터
         var chatDateCnt = {};
+        // click count
+        var clickCnt = 0;
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -46,7 +50,6 @@
 
                 reader.onload = function(e) {
                     const chatHTML = e.target.result;
-                    //const chatDocument = new DOMParser().parseFromString(chatHTML, 'text/html');
                     analyzeChatLog(e.target.result);
                 };
 
@@ -60,14 +63,17 @@
             var curDate = "1900년 1월 1일";
             var startDate = null;
             const userRegex = /\[(.*? \d{2}? .*?)\]/g;
+            
             const dateRegex = /(--------------- \d{4}년 \d{1,2}월 \d{1,2}일 .*?요일 ---------------)/g;
             const chatList = chat.split('\n');
             const resultElement = document.getElementById('result');
 
+            // 데이터 초기화
+            chatDateCnt = {};
             for(const chatTemp of chatList) {
-                //console.log(chatTemp);
                 var date = chatTemp.match(dateRegex);
                 var user = chatTemp.match(userRegex);
+                // 날짜 바뀔 때
                 if(date != null) {
                     var dt = date[0].replaceAll('-','');
                     dt = dt.slice(1,-4).replaceAll('년 ','-').replaceAll('월 ','-').replaceAll('일 ','');
@@ -80,11 +86,11 @@
                     }
                 }
                 
+
                 if(user != null) {
-                    if(user in chatDay) chatDay[user]++;
-                    else chatDay[user] = 1;
-                }
-                
+                    if(user[0] in chatDay) chatDay[user[0]]++;
+                    else chatDay[user[0]] = 1;
+                }                
             }
 
             chatDateCnt[curDate] = chatDay;
@@ -126,6 +132,22 @@
             return result;
         }
 
+        // 색깔코드 랜덤으로 생성
+        function generateRandomColor() {
+            // 랜덤한 RGB 색상 코드를 생성
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            
+            // RGB 값을 16진수로 변환하고 0을 추가하여 두 자리로 만듭니다.
+            const rHex = r.toString(16).padStart(2, '0');
+            const gHex = g.toString(16).padStart(2, '0');
+            const bHex = b.toString(16).padStart(2, '0');
+
+            // 생성한 색상 코드를 반환
+            return `#${rHex}${gHex}${bHex}`;
+        }
+
         function showResult() {
             var resultDic = {};
             var startDt = new Date(document.getElementById("startDate").value);
@@ -160,8 +182,116 @@
                 }
                 rank++;
             }
-
+            
             document.getElementById('resultList').innerHTML = resultHtml;
+            makeChart(sorted);
+        }
+
+        function makeChart(sorted) {
+
+            var listLabel = [];
+            var listData = [];
+            var listLineData = [];
+            var startDt = new Date(document.getElementById("startDate").value);
+            var endDt = new Date(document.getElementById("endDate").value);
+            const colors = [
+                "#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850",
+                "#FF6B6B", "#FFD166", "#06D6A0", "#118AB2", "#073B4C",
+                "#EF476F", "#FFD166", "#06D6A0", "#118AB2", "#073B4C",
+                "#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850",
+                "#FF6B6B", "#FFD166", "#06D6A0", "#118AB2", "#073B4C",
+                "#EF476F", "#FFD166", "#06D6A0", "#118AB2", "#073B4C",
+                // 여기에 더 많은 예쁜 색상 코드를 추가할 수 있습니다.
+            ];
+            
+            // 기존 차트를 없애야 한다. for문으로 배열을 탐색하는 방식으로 하려니 오류가 난다..... 
+            var existingChart0 = Chart.instances[2*clickCnt - 2];
+            var existingChart1 = Chart.instances[2*clickCnt - 1];
+            if(existingChart0) existingChart0.destroy();
+            if(existingChart1) existingChart1.destroy();
+            clickCnt++;
+
+            var i = 0;
+            for(var value of sorted) {
+                // pie chart 데이터 생성
+                listLabel.push(value[0]);
+                listData.push(value[1]);
+
+                // line chart 데이터 생성
+                var tempMap = {
+                    data: [],
+                    label: "",
+                    borderColor: "",
+                    fill: false
+                }
+                if(i > 5) tempMap.hidden = true;
+                tempMap.label = value[0];
+                tempMap.borderColor = colors[i];
+                listLineData.push(tempMap);
+                i++;
+            }
+            // pie chart
+            new Chart(document.getElementById("pie-chart"), {
+                type: 'pie',
+                data: {
+                labels: listLabel,
+                datasets: [
+                    {
+                    label: "채팅 수",
+                    backgroundColor: colors,
+                    data: listData
+                    }
+                ]
+                },
+                options: {
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: '월루 방 순위'
+                    },
+                    responsive: false, // 차트 크기를 자동으로 조절하지 않도록 설정
+                    maintainAspectRatio: false // 가로 및 세로 비율을 유지하지 않도록 설정
+                }
+            });
+
+            // label 초기화
+            listLabel = [];
+            for(var data in chatDateCnt) {
+                var cur = new Date(convertDate(data));
+                if(cur < startDt || cur > endDt) continue;
+
+                
+                listLabel.push(data);
+                for(var linedata of listLineData) {
+                    var tSearch = false;
+                    for(var dt in chatDateCnt[data]) {
+                        if(linedata.label == dt) {
+                            linedata.data.push(chatDateCnt[data][dt]);
+                            tSearch = true;
+                            break;
+                        }
+                    }
+                    if(!tSearch) 
+                    {
+                        linedata.data.push(0);
+                    }
+                }
+            }
+            new Chart(document.getElementById("line-chart"), {
+                type: 'line',
+                data: {
+                    labels: listLabel,
+                    datasets : listLineData
+                },
+                options: {
+                    title: {
+                    display: true,
+                    text: '월루방 날짜별 채팅 수'
+                    },
+                    responsive: true, // 차트 크기를 자동으로 조절하지 않도록 설정
+                    maintainAspectRatio: true // 가로 및 세로 비율을 유지하지 않도록 설정
+                }
+            });
         }
     </script>
 </body>

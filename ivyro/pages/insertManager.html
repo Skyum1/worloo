@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!--
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+-->
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<link href="../css/btn.css" rel="stylesheet">
+	<style>
+	
+	body {
+		background-image: linear-gradient(
+		rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+      );
+	}
+	</style>
+</head>
+<body>
+
+    <script>
+		
+		$(document).ready(function () {
+				
+			$("#btn_home").click(function () {
+				location.replace('https://worloo.netlify.app/');
+			});
+
+			$("#btn_save").click(function () {
+                if(document.querySelector("#input_pw").value != document.querySelector("#input_pwCheck").value) {
+                    alert("비밀번호를 확인하십시오.");
+                    return;
+                }
+				$.ajax({
+                    url: "../php/insertManage.php",
+                    type: "post",
+                    data: {
+                        id: document.querySelector("#input_id").value.trim(),
+                        name: document.querySelector("#input_name").value.trim(),
+                        pw: document.querySelector("#input_pw").value.trim(),
+                        grade: document.querySelector("#combo_grade").value.trim()
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다!");
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+		});
+        
+        function limitInputLength(input, maxLength) {
+            if (input.value.length > maxLength) {
+                input.value = input.value.slice(0, maxLength);
+            }
+        }
+    </script>
+
+	<div class="title">
+        관리자 추가
+	</div>
+    <p> 이름 </p>
+    <input type="text" id="input_name" oninput="limitInputLength(this, 10)"/>
+    <p> ID : </p>
+    <input type="text" id="input_id" oninput="limitInputLength(this, 16)"/>
+    <p> 비밀번호 : </p>
+    <input type="password" id="input_pw" oninput="limitInputLength(this, 16)"/>
+    <p> 비밀번호 확인 : </p>
+    <input type="password" id="input_pwCheck" oninput="limitInputLength(this, 16)"/>
+    <p> 직책 : </p>
+    <select id="combo_grade">
+        <option value="방장">방장</option>
+        <option value="부방장">부방장</option>
+        <!-- Add more options as needed -->
+      </select>
+
+    <button class="btn red rounded" id="btn_save">저장</button>
+	<button class="btn green rounded" id="btn_home">홈으로</button>
+
+	
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<!--
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+-->
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+	<link href="css/btn.css" rel="stylesheet">
+	<style>
+	
+	body {
+		background-image: linear-gradient(
+		rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+      );
+	}
+
+	p {
+		font-family: 'Jua', sans-serif;
+		font-size: 27px;
+    	margin-block-start: 0.3em;
+    	margin-block-end: 0.3em;
+	}
+
+	input {
+		font-size: 20px;
+	}
+
+	.title {
+		font-size: 70px;
+		text-align: center;
+		margin-bottom: 10px;
+		font-weight: bold;
+	}
+	
+	th, td {
+	  border: 1px solid black;
+	  border-radius: 5px;
+	}
+	
+	.tbRank {
+		font-size: 45px;
+	}
+	.name, .age, .sex, .workTime, .workName, .workCategory, .area, .remark {
+		text-align: center;
+	}	
+	
+	.modal, .modalPW, .modalMember{
+		position:absolute;
+		display:none;
+		
+		justify-content: center;
+		top:0;
+		left:0;
+
+		width:100%;
+		height:100%;
+
+		background-color: rgba(0,0,0,0.4);
+	}
+
+	.btn_close {
+		float: right;
+		font-size: 20px;
+    	background: rgb(212 255 229);
+	}
+
+	.modal_body {
+		position:absolute;
+		top:50%; 
+	
+
+		width:300px;  
+		height:300px; 
+
+		padding:40px;  
+
+		text-align: center;
+
+		background-color: rgb(212 255 229); 
+		border-radius:10px;
+		box-shadow:0 2px 3px 0 rgba(34,36,38,0.15); 
+
+		transform:translateY(-50%);
+	}
+
+	.modal_body_Member {
+		position:absolute;
+		top:50%; 
+	
+
+		width:600px;  
+		height:800px; 
+
+		padding:40px;  
+
+		text-align: center;
+
+		background-color: rgb(193 210 255); 
+		border-radius:10px;
+		box-shadow:0 2px 3px 0 rgba(34,36,38,0.15); 
+
+		transform:translateY(-50%);
+	}
+	</style>
+</head>
+<body>
+
+    <script>
+		var ManageId = "";
+
+		$(document).ready(function () {
+			
+			getMembers();	
+			$("#btn_home").click(function () {
+				location.replace('https://worloo.netlify.app/');
+			});
+
+			$("#btn_manage").click(function () {
+				document.querySelector('.modal').style.display = "flex";
+				document.documentElement.scrollTop = 0;
+			});
+
+			$(".btn_close").click(function() {
+				document.querySelector('.modal').style.display = "none";
+				document.querySelector('.modalPW').style.display = "none";
+				document.querySelector('.modalMember').style.display = "none";
+			});
+
+			$("#btn_login").click(function() {
+				
+				$.ajax({
+                    url: "./php/selectLoginManage.php",
+                    type: "post",
+                    data: {
+						
+                        id: document.querySelector("#input_id").value.trim(),
+                        pw: document.querySelector("#input_pw").value.trim()
+                    },
+                    success: function(data) {
+						
+						if(data.indexOf("correct!") >= 0)
+						{
+							alert("로그인 성공!!!");
+							ManageId = document.querySelector("#input_id").value;
+							document.querySelector("#btn_manage").style.visibility = "hidden";
+							document.querySelector("#btn_add").style.visibility = "visible";
+							document.querySelector("#btn_updatePW").style.visibility = "visible";
+							if(data.indexOf("방장") >= 0) document.querySelector("#btn_update").style.visibility = "visible";
+							document.querySelector('.modal').style.display = "none";
+						}
+						else alert("실패");
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+
+			$("#btn_add").click(function() {
+				//location.href = "./pages/insertMember.html";
+				document.querySelector("#input_name").value = "";
+				document.querySelector("#input_age").value = "";
+				document.querySelector("#input_start").value = "";
+				document.querySelector("#input_end").value = "";
+				document.querySelector("#input_job").value = "";
+				document.querySelector("#input_category").value = "";
+				document.querySelector("#input_area").value = "";
+				document.querySelector("#input_birth").value = "";
+				document.querySelector("#input_remark").value = "";
+				
+				document.querySelector('.modalMember').style.display = "flex";
+				document.documentElement.scrollTop = 0;
+			});
+
+			$("#btn_updatePW").click(function() {
+				document.querySelector('.modalPW').style.display = "flex";
+				document.documentElement.scrollTop = 0;
+			});
+
+			$("#btn_update").click(function() {
+				location.href = "./pages/updateManager.html";
+			});
+
+			$("#btn_ChangePW").click(function() {
+				if(document.querySelector("#input_updatePW1").value != document.querySelector("#input_updatePW2").value) {
+                    alert("비밀번호를 확인하십시오.");
+                    return;
+                }
+
+				$.ajax({
+                    url: "./php/updatePW.php",
+                    type: "post",
+                    data: {
+						
+                        id: ManageId,
+                        pw: document.querySelector("#input_updatePW1").value
+                    },
+                    success: function(data) {
+						alert("비밀번호 변경 완료!");
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+
+			$("#btn_save").click(function () {
+				if(ManageId == "") {
+					alert("임원진만 수정 가능합니다.");
+					return;
+				}
+				if(!confirm("저장하시겠습니까?")) return;
+
+				$.ajax({
+                    url: "./php/insertMember.php",
+                    type: "post",
+                    data: {
+                        name: document.querySelector("#input_name").value.trim(),
+                        age: document.querySelector("#input_age").value.trim(),
+                        sex: document.querySelector("#combo_sex").value.trim(),
+                        workTime: document.querySelector("#input_start").value.trim() + " ~ " + document.querySelector("#input_end").value.trim(),
+                        workName: document.querySelector("#input_job").value.trim(),
+                        workCategory: document.querySelector("#input_category").value.trim(),
+                        area: document.querySelector("#input_area").value.trim(),
+                        birth: document.querySelector("#input_birth").value.trim(),
+                        remark: document.querySelector("#input_remark").value.trim()
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다!");
+						document.querySelector('.modalMember').style.display = "none";
+						getMembers();
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+
+			$("#btn_delete").click(function () {
+				if(ManageId == "") {
+					alert("임원진만 수정 가능합니다.");
+					return;
+				}
+				if(!confirm("정말 삭제하시겠습니까?")) return;
+
+				$.ajax({
+                    url: "./php/deleteMember.php",
+                    type: "post",
+                    data: {
+                        name: document.querySelector("#input_name").value.trim()
+                    },
+                    success: function(data) {
+						alert("성공적으로 삭제되었습니다!");
+						document.querySelector('.modalMember').style.display = "none";
+						getMembers();
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+		});
+		
+		function getMembers() {
+			$.ajax({
+				url: "./php/selectUser.php",
+				type: "get",
+			}).done(function(data) {
+				printResult(data);
+			});
+		}
+		
+		function printResult(data) {
+			$('.tbRank tbody tr:not(:first-child)').remove();
+
+			var json = JSON.parse(data);
+			var str = "";
+
+			for(var i = 0; i < json.length; i++) {
+
+				str += "<tr>";
+				str += "<td class='name' onclick='selectMember(this);'>" + json[i]["name"] + "</td>";
+				str += "<td class='age'>" +json[i]["age"] + "</td>";
+				str += "<td class='sex'>" +json[i]["sex"] + "</td>";
+				str += "<td class='workTime'>" + json[i]["work_time"] + "</td>";
+				str += "<td class='workName'>" + json[i]["work_name"] + "</td>";
+				str += "<td class='workCategory'>" + json[i]["work_category"] + "</td>";
+				str += "<td class='area'>" + json[i]["area"] + "</td>";
+				str += "<td class='remark'>" + json[i]["remark"] + "</td>";
+				str += "</tr>";
+			}
+			$(".tbRank").append(str);
+		}
+	
+		function selectMember(member) {
+			
+			$.ajax({
+				url: "./php/selectMember.php",
+				type: "post",
+				data: {
+					name: member.innerText
+				},
+				success: function(data) {
+					var m_json = JSON.parse(data);
+					var workTime = m_json[0]["work_time"].split('~');
+                    document.querySelector("#input_name").value = m_json[0]["name"];
+					document.querySelector("#input_age").value = m_json[0]["age"];
+					document.querySelector("#combo_sex").value = m_json[0]["sex"];
+					document.querySelector("#input_start").value = workTime[0];
+					document.querySelector("#input_end").value = workTime[1];
+					document.querySelector("#input_job").value = m_json[0]["work_name"];
+					document.querySelector("#input_category").value = m_json[0]["work_category"];
+					document.querySelector("#input_area").value = m_json[0]["area"];
+					document.querySelector("#input_birth").value = m_json[0]["birth"];
+					document.querySelector("#input_remark").value = m_json[0]["remark"];
+
+					document.querySelector('.modalMember').style.display = "flex";
+					document.documentElement.scrollTop = 0;
+				},
+				error: function() {
+					alert("데이터 전송 중 오류가 발생했습니다.");
+				}
+			});
+		}
+    </script>
+
+	<div class="title">
+		명단
+	</div>
+	<div class="tableRank" border:1>
+		<table class="tbRank">
+			<th style="width:5%;"> 이름 </th>
+			<th style="width:5%;"> 나이 </th>
+			<th style="width:5%;"> 성별 </th>
+			<th style="width:30%;"> 출퇴시간 </th>
+			<th style="width:10%;"> 직업 </th>
+			<th style="width:15%;"> 분야 </th>
+			<th style="width:10%;"> 지역 </th>
+			<th style="width:15%;"> 기타 </th>
+		</table>
+	</div>
+	<div class="modal">
+        <div class="modal_body">
+			<button type="button" class="btn_close" aria-label="Close">X</button>
+            <h2>관리자 로그인</h2>
+            <br>
+			<input type="text" id="input_id" placeholder="ID"/>
+			<br>
+			<br>
+			<input type="password" id="input_pw" placeholder="PW"/>
+			<br>
+			<button class="btn green rounded" id="btn_login">로그인</button>
+        </div>
+    </div>
+
+	<div class="modalPW">
+        <div class="modal_body">
+			<button type="button" class="btn_close" aria-label="Close">X</button>
+            <h2>비밀번호 변경</h2>
+            <br>
+			<input type="password" id="input_updatePW1" placeholder="비밀번호"/>
+			<br>
+			<br>
+			<input type="password" id="input_updatePW2" placeholder="비밀번호확인"/>
+			<br>
+			<button class="btn green rounded" id="btn_ChangePW">변경</button>
+        </div>
+    </div>
+
+	<div class="modalMember">
+        <div class="modal_body_Member">
+			<button type="button" class="btn_close" aria-label="Close" style="background: rgb(193 210 255);">X</button>
+			<p> 이름 </p>
+			<input type="text" id="input_name"/>
+			<p> 나이 : </p>
+			<input type="number" id="input_age"/>
+			<p> 성별 : </p>
+			<select id="combo_sex">
+				<option value="남">남</option>
+				<option value="여">여</option>
+			</select>
+			<p> 출퇴시간 : </p>
+			<input type="text" id="input_start" /> ~ <input type="text" id="input_end" />
+			<p>직업</p>
+			<input type="text" id="input_job"/>
+			<p>분야</p>
+			<input type="text" id="input_category"/>
+			<p>지역</p>
+			<input type="text" id="input_area"/>
+			<p>생일(ex.19940501)</p>
+			<input type="number" id="input_birth" oninput="limitInputLength(this, 8)"/>
+			<p>기타</p>
+			<input type="text" id="input_remark"/>
+			<br>
+			<button class="btn blue rounded" id="btn_save">저장</button>
+			<button class="btn red rounded" id="btn_delete">삭제</button>
+        </div>
+    </div>
+
+	<button class="btn green rounded" id="btn_home">홈으로</button>
+	<button class="btn red rounded" id="btn_manage">관리자모드</button>
+	<button class="btn red rounded" id="btn_add" style="visibility: hidden;">멤버추가</button>
+	<button class="btn cyan rounded" id="btn_updatePW" style="visibility: hidden;">비밀번호변경</button>
+	<button class="btn red rounded" id="btn_update" style="visibility: hidden;">관리자수정</button>
+	
+</body>
+</html>

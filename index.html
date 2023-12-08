@@ -64,7 +64,7 @@
     <script>
 		
 		$(document).ready(function () {
-            var randImg = "img/img" + rand(1, 21) + ".jpg";
+            var randImg = "img/img" + rand(1, 35) + ".jpg";
             var randMainImg = "img/main" + rand(1,5) + ".jpg";
 
             $("#main").css("background-image", "url(" + randMainImg + ")");
@@ -90,6 +90,10 @@
             $("#btn_analy").click(function() {
                 location.href = "./pages/analyTalk.html";
             })
+
+            $("#btn_list").click(function() {
+                location.href = "http://rjftkd126.ivyro.net/";
+            })
 		});
 	
         function rand(min, max) {
@@ -109,7 +113,7 @@
             <table>
                 <tr>
                     <td>
-                        <h1>퇴사예정자 :</h1>
+                        <h1>퇴사자 :</h1>
                     </td>
                     <td>
                         <h2>은뚜 </h2>
@@ -129,7 +133,7 @@
                         <h1>♥ 월루방 공식커플 ♥ : </h1>
                     </td>
                     <td>
-                        <h2>쪼오 ♥ 써리 | 맥날 ♥ 은뚜</h2>
+                        <h2> 맥날 ♥ 은뚜</h2>
                     </td>
                 </tr>
                 
@@ -142,6 +146,7 @@
         <button class="btn red rounded" id="btn_main">절대 클릭하지 마시오!!</button>
         <button class="btn cyan rounded" id="btn_calender">우리들의 달력</button>
         <button class="btn green rounded" id="btn_analy">채팅분석기</button>
+        <button class="btn yellow rounded" id="btn_list">명단</button>
     </div>
     <div id="main">
         <div id="txtExplain">

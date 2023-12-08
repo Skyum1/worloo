@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<!--
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+-->
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<link href="../css/btn.css" rel="stylesheet">
+	<style>
+	
+	body {
+		background-image: linear-gradient(
+		rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+      );
+	}
+	</style>
+</head>
+<body>
+
+    <script>
+        var params = new URLSearchParams(window.location.search);
+
+		$(document).ready(function () {
+				
+            selectData();
+
+			$("#btn_home").click(function () {
+				location.href = "./updateManager.html";
+			});
+
+			$("#btn_save").click(function () {
+
+                if(!confirm("저장하시겠습니까?")) return;
+
+				$.ajax({
+                    url: "../php/updateManage.php",
+                    type: "post",
+                    data: {
+                        id: document.querySelector("#input_id").value.trim(),
+                        name: document.querySelector("#input_name").value.trim(),
+                        grade: document.querySelector("#combo_grade").value.trim()
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다!");
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+
+            $("#btn_delete").click(function () {
+                if(!confirm("삭제하시겠습니까?")) return;
+                $.ajax({
+                    url: "../php/deleteManage.php",
+                    type: "post",
+                    data: {
+                        id: document.querySelector("#input_id").value.trim()
+                    },
+                    success: function(data) {
+                        alert("성공적으로 삭제되었습니다!");
+                        location.href = "./updateManager.html";
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+            });
+		});
+            
+        function selectData() {
+            $.ajax({
+                url: "../php/selectManage.php",
+                type: "post",
+                data: {
+                    id: params.get("id")
+                },
+                success: function(data) {
+                    var m_json = JSON.parse(data);
+                    document.querySelector("#input_name").value = m_json[0]["name"];
+                    document.querySelector("#input_id").value = m_json[0]["id"];
+                    document.querySelector("#combo_grade").value = m_json[0]["grade"];
+                },
+                error: function() {
+                    alert("데이터를 불러오는 중 오류가 발생하였습니다.");
+                }
+            });
+        }
+
+        function limitInputLength(input, maxLength) {
+            if (input.value.length > maxLength) {
+                input.value = input.value.slice(0, maxLength);
+            }
+        }
+    </script>
+
+	<div class="title">
+        관리자 변경
+	</div>
+    <p> 이름 </p>
+    <input type="text" id="input_name" oninput="limitInputLength(this, 10)"/>
+    <p> ID : </p>
+    <input type="text" id="input_id" readonly="readonly"/>
+
+    <p> 직책 : </p>
+    <select id="combo_grade">
+        <option value="방장">방장</option>
+        <option value="부방장">부방장</option>
+        <!-- Add more options as needed -->
+      </select>
+
+    <button class="btn blue rounded" id="btn_save">저장</button>
+    <button class="btn red rounded" id="btn_delete">삭제</button>
+	<button class="btn green rounded" id="btn_home">이전으로</button>
+
+	
+</body>
+</html>

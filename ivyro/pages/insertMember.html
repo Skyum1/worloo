@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+-->
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<link href="../css/btn.css" rel="stylesheet">
+	<style>
+	
+	body {
+		background-image: linear-gradient(
+		rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+      );
+	}
+	</style>
+</head>
+<body>
+
+    <script>
+		
+		$(document).ready(function () {
+				
+			$("#btn_home").click(function () {
+				location.replace('https://worloo.netlify.app/');
+			});
+
+			$("#btn_save").click(function () {
+				$.ajax({
+                    url: "../php/insertMember.php",
+                    type: "post",
+                    data: {
+                        name: document.querySelector("#input_name").value.trim(),
+                        age: document.querySelector("#input_age").value.trim(),
+                        sex: document.querySelector("#combo_sex").value.trim(),
+                        workTime: document.querySelector("#input_start").value.trim() + " ~ " + document.querySelector("#input_end").value.trim(),
+                        workName: document.querySelector("#input_job").value.trim(),
+                        workCategory: document.querySelector("#input_category").value.trim(),
+                        area: document.querySelector("#input_area").value.trim(),
+                        birth: document.querySelector("#input_birth").value.trim(),
+                        remark: document.querySelector("#input_remark").value.trim()
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다!");
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+			});
+		});
+            
+        function limitInputLength(input, maxLength) {
+            if (input.value.length > maxLength) {
+                input.value = input.value.slice(0, maxLength);
+            }
+        }
+    </script>
+
+	<div class="title">
+        멤버 추가
+	</div>
+    <p> 이름 </p>
+    <input type="text" id="input_name"/>
+    <p> 나이 : </p>
+    <input type="number" id="input_age"/>
+    <p> 성별 : </p>
+    <select id="combo_sex">
+        <option value="남">남</option>
+        <option value="여">여</option>
+    </select>
+    <p> 출퇴시간 : </p>
+    <input type="number" id="input_start" oninput="limitInputLength(this, 4)"/> ~ <input type="number" id="input_end" oninput="limitInputLength(this, 4)"/>
+    <p>직업</p>
+    <input type="text" id="input_job"/>
+    <p>분야</p>
+    <input type="text" id="input_category"/>
+    <p>지역</p>
+    <input type="text" id="input_area"/>
+    <p>생일(ex.19940501)</p>
+    <input type="number" id="input_birth" oninput="limitInputLength(this, 8)"/>
+    <p>기타</p>
+    <input type="text" id="input_remark"/>
+
+    <button class="btn red rounded" id="btn_save">저장</button>
+	<button class="btn green rounded" id="btn_home">홈으로</button>
+	
+</body>
+</html>
