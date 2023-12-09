@@ -35,6 +35,11 @@
             
         }
 
+        .rule {
+            font-size: 30px;
+            margin: 30px;
+        }
+
         #main {
             position: absolute;
             top: 0px;
@@ -64,15 +69,11 @@
     <script>
 		
 		$(document).ready(function () {
-            var randImg = "img/img" + rand(1, 35) + ".jpg";
-            var randMainImg = "img/main" + rand(1,5) + ".jpg";
+            var randImg = "img/img" + rand(1, 10) + ".jpg";
+            var randMainImg = "img/main" + rand(1,4) + ".jpg";
 
             $("#main").css("background-image", "url(" + randMainImg + ")");
             $("#imgBack").attr("src", randImg);
-
-            $("#btn_excel").click(function () {
-                location.href = "https://docs.google.com/spreadsheets/d/1nLOgDvbwzmkhevb1U23UTyKXbC0d-MRD9ahijYrkDJ0/edit#gid=0"; 
-            })
 
             $("#btn_main").click(function () {
                 alert("맹빠노!");
@@ -110,40 +111,53 @@
         <img id="imgBack">
         
         <div id="inContents">
-            <table>
-                <tr>
-                    <td>
-                        <h1>퇴사자 :</h1>
-                    </td>
-                    <td>
-                        <h2>은뚜 </h2>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <h1>퇴사예정예정자 :</h1>
-                    </td>
-                    <td>
-                        <h2>자바 맥날 써리 쪼오 맹고 얼탱 치즈 쿠쿠 설화 먼지</h2>
-                    </td>
-                </tr>
+            <table >
+                <h1 style="text-align: center; font-size: 60px;">우리방 규칙</h1>
+                <div class="rule">
+                    <br>
+                    * 대화순위 매일 오후 3시에 체크해서 대화량이 저조하면 내보내지니 유의할 것(바쁘면 바쁘다고 한마디라도 해주면 이해가능)
+                    <br>
+                    <br>
+                    * 공식적인 전체벙 있기 전까지 어떠한 벙도 금지!!
+                    <br>
+                    <br>
+                    * 방장 허락이나 아무런 사유 없이는 외출금지!!
+                    <br>
+                    <br>
+                    * 여긴 반말방이고, 닉넴은 두 글자로 통일(닉넴 년생나이 성별)
+                    <br>
+                    <br>
+                    * 연봉, sns, 연락처, 집 주변 주소 등 개인 정보 '절대 공유 금지' + 드러운 얘기도 금지
+                    <br>
+                    <br>
+                    * 얼굴공개는 자유이나 상대방에게 요구하는 것은 금지! + 수염금지!!
+                    <br>
+                    <br>
+                    * 반말방이어도 호칭은 똑바로 하기 (형, 누나, 언니 O)
+                    <br>
+                    <br>
+                    * 메시지는 삭제 XX, 관리자한테 가려달라 하기
+                    <br>
+                    <br>
+                    * 서로 장난치고 노는 건 좋으나, 다른 사람이 그 분위기에 끼어들지 못할 수 있으니 주제나 분위기에 신경 쓸 것
+                    <br>
+                    <br>
+                    * 일하다 온 멤버가 끼어들지 못할 것 같으면 다른 멤버들이 그 대화 주제 컷트 시켜주길 바람
+                    <br>
+                    <br>
+                    * 보룸 금지
+                    <br>
+                    <br>
+                    건의할 사항 있으면 아래 1:1 옵챗으로 오세용
+                    <a href="https://open.kakao.com/o/sfMrbSlf">건의방</a>
+                </div>
                 
-                <tr>
-                    <td>
-                        <h1>♥ 월루방 공식커플 ♥ : </h1>
-                    </td>
-                    <td>
-                        <h2> 맥날 ♥ 은뚜</h2>
-                    </td>
-                </tr>
                 
             </table>
         </div>
         
     </div>
     <div>
-        <button class="btn cyan rounded" id="btn_excel">우린 뭐하는 사람들?</button>
-        <button class="btn red rounded" id="btn_main">절대 클릭하지 마시오!!</button>
         <button class="btn cyan rounded" id="btn_calender">우리들의 달력</button>
         <button class="btn green rounded" id="btn_analy">채팅분석기</button>
         <button class="btn yellow rounded" id="btn_list">명단</button>
