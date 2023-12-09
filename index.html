@@ -69,7 +69,7 @@
     <script>
 		
 		$(document).ready(function () {
-            var randImg = "img/img" + rand(1, 10) + ".jpg";
+            var randImg = "img/img" + rand(1, 11) + ".jpg";
             var randMainImg = "img/main" + rand(1,4) + ".jpg";
 
             $("#main").css("background-image", "url(" + randMainImg + ")");
@@ -100,7 +100,7 @@
         function rand(min, max) {
              return Math.floor(Math.random() * (max - min + 1)) + min;
         }
-        
+
     </script>
     <div id="back">
         <img id="imgBack">
