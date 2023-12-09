@@ -37,6 +37,7 @@
 		$t->work_name = $row['WORK_NAME'];
 		$t->work_category = $row['WORK_CATEGORY'];
 		$t->area = $row['AREA'];
+		$t->birth = $row['BIRTH'];
 		$t->remark = $row['REMARK'];
         $returnVal[] = $t;
         unset($t);

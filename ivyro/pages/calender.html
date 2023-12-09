@@ -92,13 +92,16 @@
     </style>
 
     <script>
-        window.onload = function () { buildCalendar(); }    // 웹 페이지가 로드되면 buildCalendar 실행
+        window.onload = function () { 
+            getData();
+        }    // 웹 페이지가 로드되면 buildCalendar 실행
 
         let nowMonth = new Date();  // 현재 달을 페이지를 로드한 날의 달로 초기화
         let today = new Date();     // 페이지를 로드한 날짜를 저장
         today.setHours(0, 0, 0, 0);    // 비교 편의를 위해 today의 시간을 초기화
 
-        var eventList = {
+        var birthList = {
+            /*
             "대장님생일" : "0103",
             "은뚜생일" : "1205",
             "맹고생일" : "0619",
@@ -110,7 +113,7 @@
             "치즈생일" : "0901",
             "써리생일" : "0510",
             "로제생일" : "0517",
-            "쿠쿠생일" : "0611",
+            "쿠쿠생일" : "0611",*/
         };
 
         var filterEvent = {};
@@ -119,6 +122,22 @@
 
         });
 
+        function getData() {
+            $.ajax({
+				url: "../php/selectUser.php",
+				type: "get",
+			}).done(function(data) {
+                var json = JSON.parse(data);
+                for(var i = 0; i < json.length; i++) {
+                    var birthday = json[i]["birth"];
+                    // null 값 또는 잘못된 데이터는 continue
+                    if(birthday == null) continue;
+                    else if(birthday.length != 8 || birthday == "" ) continue;
+                    birthList[json[i]["name"] + "생일"] = birthday.substr(4,4);
+                }
+				buildCalendar();
+			});
+        }
         // 달력 생성 : 해당 달에 맞춰 테이블을 만들고, 날짜를 채워 넣는다.
         function buildCalendar() {
 
@@ -140,8 +159,8 @@
             }
 
             filterEvent = {};
-            for(var key in eventList) {
-                if(document.getElementById("calMonth").innerText === eventList[key].substr(0,2)) filterEvent[key] = eventList[key];
+            for(var key in birthList) {
+                if(document.getElementById("calMonth").innerText === birthList[key].substr(0,2)) filterEvent[key] = birthList[key];
             }
             // console.log(filterEvent);
 

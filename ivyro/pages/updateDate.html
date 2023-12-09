@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<!--
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+-->
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <link href="../css/btn.css" type="text/css" rel="stylesheet">
+	<style>    
+    ul{
+        padding: 0;
+        margin: 0;
+        display:inline-block;
+    }
+    /* 
+        게시판 목록 행 단위 
+        목록 요소 자체를 가운데 정렬하기
+        ul 기본 가로 크기는 100%이므로, 가로 크기를 지정해줘야 가운데로 정렬할 수 있다.
+        가운데 정렬
+        번호, 제목, 작성자, 작성일, 조회, 좋아요 와 데이터 정렬
+    */
+    .board_row {
+
+        width: 100%;
+        border-bottom:solid 1px gray; 
+
+    }
+
+    h1{
+        text-align:center;
+    }
+    /* 게시글 목록 공통 개별 요소 속성 */
+    li{
+        list-style:none;
+        border-bottom:solid 1px gray; 
+        float:left; 
+        text-align:center;
+        /* padding: 0;
+        margin: 0; */
+    }
+
+    /* 번호, 제목, 작성자, 작성일, 조회, 좋아요 row의 style 설정 */
+    .title_row > li {
+        height: 50px;
+        line-height: 50px;
+        background:rgb(233, 233, 233);
+        font-weight: bold;
+        border-top:solid 2px rgb(0, 0, 0);
+        border-right:solid 1px gray;
+    }
+
+    /* 게시글 목록 데이터 개별 요소 속성 */
+    .data_row > li{
+        height: 40px;
+        line-height: 40px;
+        font-weight: lighter;
+        border-right:solid 1px gray;
+        
+    }
+
+    /* 요소들의 너비 설정 */
+    .w300 {width:300px; }
+    .w200 {width:200px; }
+
+
+    /* 게시판 목록 박스 */
+    .notice_board{
+
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        /* 구성 요소 세로로 배치 */
+        flex-direction: column;
+    }
+    
+    .pagination{
+        display: flex;
+        width: 400px;
+        justify-content: space-between;
+    }
+
+    /* 전체 중앙 정렬 */
+    .container{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+	.title {
+		font-size: 70px;
+		text-align: center;
+		margin-bottom: 10px;
+		font-weight: bold;
+	}
+	
+	th, td {
+	  border: 1px solid black;
+	  border-radius: 5px;
+	}
+	
+	.contents {
+        text-align: center;
+		font-size: 35px;
+	}
+	.rownum, .score, .inputdt {
+		text-align: center;
+	}	
+	
+	.goMain {
+        text-align: center;
+        position: relative;
+        top: 30px;
+    }
+
+    .page_num {
+        display:inline-block; 
+        border:1px solid #f7f7f7; 
+        height:35px; 
+        width:35px;  
+        vertical-align:middle; 
+        text-align:center;
+        text-decoration:none; 
+        font-size:15px; 
+        color:#ffffff;
+        background: rgb(103 103 103);
+    }
+    
+	.btn_close {
+		float: right;
+		font-size: 20px;
+    	background: rgb(212 255 229);
+	}
+
+    .description {
+        margin: 20px;
+        font-size: 20px;
+        font-family: 'Jua', sans-serif;
+    }
+
+    .modalDate {
+		position:absolute;
+		display:none;
+		
+		justify-content: center;
+		top:0;
+		left:0;
+
+		width:100%;
+		height:100%;
+
+		background-color: rgba(0,0,0,0.4);
+	}
+
+    .modal_body {
+		position:absolute;
+		top:50%; 
+	
+
+		width:400px;  
+		height:400px; 
+
+		padding:40px;  
+
+		text-align: center;
+
+		background-color: rgb(212 255 229); 
+		border-radius:10px;
+		box-shadow:0 2px 3px 0 rgba(34,36,38,0.15); 
+
+		transform:translateY(-50%);
+	}
+	
+	</style>
+</head>
+<body>
+
+    <h1> 목록 </h1>
+	<div class="container">
+        <div class="notice_board">
+             <!-- title 열 -->
+             <ul class="board_row title_row ">
+                <li class="w200">일정</li>
+                <li class="w200">제목</li>
+                <li class="w300">기타</li>
+            </ul>
+            <!-- 게시글 추가로 들어오는 위치 -->
+        </div>
+
+        
+
+        <button class="btn blue rounded" id="btn_insert">일정 추가</button>   
+        <!-- 페이지 블럭 -->
+        <div class="pagination">
+            <button class="before_move" onclick="before()">이전</button>
+            <div class="block">
+                <!-- 블럭 추가로 들어오는 위치 -->
+            </div>
+            <button class="next_move" onclick="next()">다음</button>
+        </div>
+        <br>
+        <br>
+        <button class="btn red rounded" id="goMain">메인으로</button>   
+	</div>
+
+    <div class="modalDate">
+        <div class="modal_body">
+            <button type="button" class="btn_close" aria-label="Close">X</button>
+            <h2>일정변경 및 추가</h2>
+            <div class="description"> 제목 </div>
+            <input type="text" id="input_name"/>
+            <br>
+            <div class="description">날짜(ex:20231201, 반드시 8글자 숫자)</div>
+            <input type="number" id="input_start" oninput="limitInputLength(this, 8)"/>~
+            <input type="number" id="input_end" oninput="limitInputLength(this, 8)"/>
+            
+            <div class="description">기타</div>
+            <input type="text" id="input_remark"/>
+            <br>
+            <button class="btn green rounded" id="btn_ChangeDate">변경</button>
+            <button class="btn red rounded" id="btn_delete">삭제</button>
+        </div>
+    </div>
+
+    <script>
+		var page = 1; // 현재 페이지
+        var page_num = 10; // 페이지 당 나타낼 게시글 수
+        var totalPage = 0;
+        let block_num = 10;// 한번에 나타내는 최대 블럭 수
+        let total_block = totalPage%10 == 0 ? totalPage/10 : totalPage/10+1 ; // 블럭의 총 수
+        var m_json;
+		$(document).ready(function () {
+		
+            selectData();
+           
+
+			$("#goMain").click(function () {
+				location.replace('../index.html');
+			});
+
+            $("#btn_insert").click(function (){
+                document.querySelector('.modalDate').style.display = "flex";
+                document.querySelector("#input_name").value = "";
+				document.querySelector("#input_start").value = "";
+				document.querySelector("#input_end").value = "";
+				document.querySelector("#input_remark").value = "";
+                document.querySelector("#btn_delete").style.visibility = "hidden";
+                document.getElementById('input_name').readOnly = false;
+            });
+
+            $(".btn_close").click(function() {
+				document.querySelector('.modalDate').style.display = "none";
+			});
+
+            $("#btn_delete").click(function() {
+                if(!confirm("정말 삭제하시겠습니까?")) return;
+
+                $.ajax({
+                    url: "../php/deleteDate.php",
+                    type: "post",
+                    data: {
+                        name: document.querySelector("#input_name").value
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다.")
+                        document.querySelector('.modalDate').style.display = "none";
+                        selectData();
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+            });
+            
+            $("#btn_ChangeDate").click(function() {
+                if(document.querySelector("#input_name").value == "") {
+                    alert("제목이 빈칸이어선 안됩니다.");
+                    return;
+                }
+                if(document.querySelector("#input_start").value == "") {
+                    alert("시작날짜가 비어선 안됩니다.");
+                    return;
+                }
+                if(document.querySelector("#input_start").value > document.querySelector("#input_start").value) {
+                    alert("날짜를 확인하십시오");
+                    return;
+                }
+                if(document.querySelector("#input_start").value.length != 8) {
+                    alert("날짜는 8글자여야 합니다.");
+                    return;
+                }
+                if(document.querySelector("#input_end").value != "") {
+                    if(document.querySelector("#input_end").value.length != 8) {
+                        alert("날짜는 8글자여야 합니다.");
+                        return;
+                    }
+                }
+
+                if(!confirm("저장하시겠습니까?")) return;
+
+                var date = document.querySelector("#input_start").value;
+                if(document.querySelector("#input_end").value != "") {
+                    if(document.querySelector("#input_end").value != date) {
+                        date += ";" + document.querySelector("#input_end").value;
+                    }
+                }
+
+                $.ajax({
+                    url: "../php/insertDate.php",
+                    type: "post",
+                    data: {
+                        name: document.querySelector("#input_name").value,
+                        date: date,
+                        remark: document.querySelector("#input_remark").value
+                    },
+                    success: function(data) {
+                        alert("성공적으로 저장되었습니다.")
+                        document.querySelector('.modalDate').style.display = "none";
+                        selectData();
+                    },
+                    error: function() {
+                        alert("데이터 전송 중 오류가 발생했습니다.");
+                    }
+                });
+
+
+            });
+		});
+
+        function getRandomNumber(number) {
+            return Math.floor(Math.random() * number);
+        }
+
+        function selectData() {
+             // 총 페이지 조회
+             $.ajax({
+				url: "../php/selectDateCount.php",
+				type: "get"
+			}).done(function(data) {
+				totalPage = JSON.parse(data)[0]["rownum"];
+                total_block = totalPage%10 == 0 ? totalPage/10 : totalPage/10+1 ;
+
+                selectCon();
+			});
+        }
+
+        function selectCon(){
+
+            let post_list = document.querySelectorAll(".data_row");
+            post_list.forEach(function(item){
+                item.remove();
+            })
+
+            // 게시물 조회
+            $.ajax({
+				url: "../php/selectDate.php",
+				type: "get"
+			}).done(function(data) {
+				m_json = JSON.parse(data);
+                post_data_print();
+			});
+        }
+
+        function selectDate(name) {
+           
+            $.ajax({
+                url: "../php/selectDateOne.php",
+                type: "post",
+                data: {
+                    name: name
+                },
+                success: function(data) {
+                    var json = JSON.parse(data);
+
+                    var date = json[0]["date"].split(";");
+
+                    document.querySelector("#input_name").value = json[0]["name"];
+				    document.querySelector("#input_start").value = date[0];
+                    if(date.length > 0) document.querySelector("#input_end").value = date[1];
+                    else document.querySelector("#input_end").value = "";
+				    document.querySelector("#input_remark").value = json[0]["remark"];
+                },
+                error: function() {
+                    alert("데이터 전송 중 오류가 발생했습니다.");
+                }
+            });
+        }
+        // 게시글 데이터 출력하기
+        // 매개변수 : 선택 블럭 
+       function post_data_print(){
+
+            // 초기화
+            // 게시글 title 제외하고 모두 제거
+            let post_list = document.querySelectorAll(".data_row");
+            post_list.forEach(function(item){
+                item.remove();
+            })
+
+            // 게시글 출력 공간
+            let notice_board = document.querySelector(".notice_board");
+            // 출력 첫 페이지 번호
+            let start = (page-1) * 10;
+            for(let i=start;i < start + 10;i++){
+
+                // 게시글 데이터 가져와서 게시글 요소 생성 및 추가
+                // 번호, 제목, 작성자, 작성일, 조회수, 좋아요
+                // data[i].notice_num data[i].title data[i].writer data[i].date_created data[i].Lookkup_num data[i].like
+
+                if(i >= totalPage) return;
+
+                let post = document.createElement("ul");
+                post.className = "board_row";
+                post.className = "data_row";
+
+                let classname = ["w200","w200","w300"]
+                let post_data = [m_json[i]["date"].replace(";","~"), m_json[i]["name"], m_json[i]["remark"]];
+                
+                //게시글 생성
+                for(let j=0;j<classname.length;j++){
+                    let li = document.createElement("li");
+                    li.className = classname[j];
+                    li.textContent = post_data[j];
+                    if(j == 1) {
+                        li.addEventListener("click",function(event){
+                            document.querySelector('.modalDate').style.display = "flex";
+                            selectDate(post_data[j]);
+                            document.querySelector("#btn_delete").style.visibility = "visible";
+                            document.getElementById('input_name').readOnly = true;
+                        });
+                    }
+
+                    post.appendChild(li);
+                }
+
+                // 게시글 추가
+                notice_board.appendChild(post);
+                block_print(page);
+            }
+       }
+
+        // 블럭 출력하기
+        // 매개변수 : 가장 앞에 오는 블럭
+        function block_print(curPage){
+            /*
+            1. 이전, 다음 블럭 속성 처리
+            2. 기존 블럭 모두 삭제
+            3. 범위 안의 블럭 생성 및 추가
+            */
+            var current_block = curPage;
+            var front_block = Math.floor(curPage / 10) + 1;
+
+            // 이전으로 갈 블럭이 없으면
+            if(front_block <= 1 ){
+                document.querySelector(".before_move").style.visibility = "hidden";
+            }
+            else{
+                document.querySelector(".before_move").style.visibility = "visible";
+            }
+
+            // 다음으로 갈 블럭이 없으면
+            if(front_block+block_num >= total_block){
+
+                document.querySelector(".next_move").style.visibility = "hidden";
+            }
+            else{
+                document.querySelector(".next_move").style.visibility = "visible";
+            }
+
+            // 블럭을 추가할 공간
+            let block_box = document.querySelector(".block");
+            // 기존 블럭 모두 삭제
+            block_box.replaceChildren();
+
+
+            //front_block부터 total_block 또는 block_num까지 생성 및 추가
+            for(let i=front_block;i<=total_block && i< front_block+block_num ;i++){
+
+                // 버튼을 생성한다.
+                let button = document.createElement("button");
+                button.textContent = i;
+                button.className = "page_num";
+                // 버튼을 클릭하면 게시글이 변경되는 이벤트 추가
+                button.addEventListener("click",function(event){
+                    page = button.textContent;
+                    post_data_print()
+                });
+                // 블럭에 추가한다.
+                block_box.appendChild(button);
+
+            }
+        }
+
+        
+        function before(){
+            block_print(current_block-block_num);
+        }
+
+        function next(){
+            block_print(current_block+block_num);
+        }
+
+        function limitInputLength(input, maxLength) {
+            if (input.value.length > maxLength) {
+                input.value = input.value.slice(0, maxLength);
+            }
+        }
+    </script>
+
+    
+</body>
+</html>

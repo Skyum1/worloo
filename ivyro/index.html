@@ -103,6 +103,18 @@
 
 		transform:translateY(-50%);
 	}
+
+	.name {
+      text-decoration: none;
+      color: #0000FF; /* 파란색 */
+      border-bottom: 1px solid #0000FF; /* 파란색 밑줄 */
+      transition: border-bottom 0.3s ease; /* 부드러운 효과를 위한 전환 효과 */
+    }
+
+	.name:hover {
+      border-bottom: 2px solid #0000FF; /* 호버 시 두꺼운 밑줄로 변경 */
+      cursor: pointer; /* 마우스 커서를 손 모양으로 변경 */
+    }
 	</style>
 </head>
 <body>
@@ -147,6 +159,7 @@
 							document.querySelector("#btn_manage").style.visibility = "hidden";
 							document.querySelector("#btn_add").style.visibility = "visible";
 							document.querySelector("#btn_updatePW").style.visibility = "visible";
+							document.querySelector("#btn_date").style.visibility = "visible";
 							if(data.indexOf("방장") >= 0) document.querySelector("#btn_update").style.visibility = "visible";
 							document.querySelector('.modal').style.display = "none";
 						}
@@ -261,6 +274,10 @@
                     }
                 });
 			});
+
+			$("#btn_date").click(function() {
+				location.href = "./pages/updateDate.html";
+			});
 		});
 		
 		function getMembers() {
@@ -324,6 +341,12 @@
 				}
 			});
 		}
+
+		function limitInputLength(input, maxLength) {
+            if (input.value.length > maxLength) {
+                input.value = input.value.slice(0, maxLength);
+            }
+        }
     </script>
 
 	<div class="title">
@@ -403,6 +426,7 @@
 	<button class="btn red rounded" id="btn_manage">관리자모드</button>
 	<button class="btn red rounded" id="btn_add" style="visibility: hidden;">멤버추가</button>
 	<button class="btn cyan rounded" id="btn_updatePW" style="visibility: hidden;">비밀번호변경</button>
+	<button class="btn blue rounded" id="btn_date" style="visibility: hidden;">일정관리</button>
 	<button class="btn red rounded" id="btn_update" style="visibility: hidden;">관리자수정</button>
 	
 </body>
