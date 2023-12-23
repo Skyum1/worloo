@@ -70,56 +70,55 @@
 
         .futureDay.choiceDay,
         .today.choiceDay {
-            background: #0A174E;
+            background: #4fd73f;
             color: #fff;
             font-weight: 600;
             cursor: pointer;
         }
 
+        .birthDay {
+            font-weight: bold;
+            color: #6473ff !important;
+            font-size: 2.2em !important;
+        }
+
         .eventDay {
             font-weight: bold;
             color: #750d0d;
-            font-size: 1.5em !important;
+            font-size: 2em !important;
         }
         
         .eventDiv {
             margin: 20px auto;
+            font-family: 'Questrial', sans-serif;
+            font-size: 30px;
         }
 
         #eventTable {
             width: 600px;
+            font-size: 20px;
         }
     </style>
 
     <script>
         window.onload = function () { 
-            getData();
-        }    // 웹 페이지가 로드되면 buildCalendar 실행
+            
+        }    
 
         let nowMonth = new Date();  // 현재 달을 페이지를 로드한 날의 달로 초기화
         let today = new Date();     // 페이지를 로드한 날짜를 저장
         today.setHours(0, 0, 0, 0);    // 비교 편의를 위해 today의 시간을 초기화
 
-        var birthList = {
-            /*
-            "대장님생일" : "0103",
-            "은뚜생일" : "1205",
-            "맹고생일" : "0619",
-            "자바생일" : "0501",
-            "맥날생일" : "1020",
-            "하누생일" : "0131",
-            "설화생일" : "1118",
-            "야생생일" : "0927",
-            "치즈생일" : "0901",
-            "써리생일" : "0510",
-            "로제생일" : "0517",
-            "쿠쿠생일" : "0611",*/
-        };
+        var birthList = { };
+        var eventList = [];
 
         var filterEvent = {};
+        var filterEventList = [];
+        var divToday;
 
         $(document).ready(function () {
 
+            getData();
         });
 
         function getData() {
@@ -135,8 +134,45 @@
                     else if(birthday.length != 8 || birthday == "" ) continue;
                     birthList[json[i]["name"] + "생일"] = birthday.substr(4,4);
                 }
+				getEventDate();
+			});
+        }
+
+        function getEventDate() {
+            $.ajax({
+				url: "../php/selectDate.php",
+				type: "get",
+			}).done(function(data) {
+                var json = JSON.parse(data);
+                for(var i = 0; i < json.length; i++) {
+                    var eventDay = json[i]["date"];
+                    
+                    // null 값 또는 잘못된 데이터는 continue
+                    if(eventDay == null) continue;
+
+                    var listDay = eventDay.split(";");
+
+                    if(listDay.length == 1) {
+                        var event = [json[i]["name"],json[i]["date"]];
+                        eventList.push(event);
+                    } else {
+                        // Date 객체로 변환
+                        var startDate = new Date(listDay[0].substr(0, 4), parseInt(listDay[0].substr(4, 2)) - 1, listDay[0].substr(6, 2));
+                        var endDate = new Date(listDay[1].substr(0, 4), parseInt(listDay[1].substr(4, 2)) - 1, listDay[1].substr(6, 2));
+
+                        for(var j = startDate; j <= endDate; j.setDate(j.getDate() + 1)) {
+                            var formattedDate = j.getFullYear().toString() + padZero(j.getMonth() + 1).toString() + padZero(j.getDate().toString());
+                            var event = [json[i]["name"],formattedDate];
+                            eventList.push(event);
+                        }
+                    }   
+                }
 				buildCalendar();
 			});
+        }
+
+        function padZero(number) {
+            return number < 10 ? '0' + number : number;
         }
         // 달력 생성 : 해당 달에 맞춰 테이블을 만들고, 날짜를 채워 넣는다.
         function buildCalendar() {
@@ -158,11 +194,22 @@
                 let nowColumn = nowRow.insertCell();        // 열 추가
             }
 
+            // 생일
             filterEvent = {};
             for(var key in birthList) {
                 if(document.getElementById("calMonth").innerText === birthList[key].substr(0,2)) filterEvent[key] = birthList[key];
             }
-            // console.log(filterEvent);
+
+            // 다른 이벤트(연차,휴가)
+            filterEventList = [];
+            for(var i = 0; i < eventList.length; i++) {
+                if(document.getElementById("calYear").innerText === eventList[i][1].substr(0,4)) {
+                    if(document.getElementById("calMonth").innerText === eventList[i][1].substr(4,2)) {
+                        var filter = [eventList[i][0],eventList[i][1].substr(4,4)];
+                        filterEventList.push(filter);
+                    }
+                }
+            }
 
             for (let nowDay = firstDate; nowDay <= lastDate; nowDay.setDate(nowDay.getDate() + 1)) {   // day는 날짜를 저장하는 변수, 이번달 마지막날까지 증가시키며 반복  
 
@@ -180,17 +227,26 @@
                 if (nowDay.getFullYear() == today.getFullYear() && nowDay.getMonth() == today.getMonth() && nowDay.getDate() == today.getDate()) { // 오늘인 경우           
                     newDIV.className = "today";
                     newDIV.onclick = function () { choiceDate(this); }
+                    choiceDate(newDIV);
                 }
                 else {                                      // 미래인 경우
                     newDIV.className = "futureDay";
                     newDIV.onclick = function () { choiceDate(this); }
                 }
 
+                // 생일 이벤트 추가
                 for(var key in filterEvent) {
                     if(nowDay.getDate() == filterEvent[key].substr(2)) {
-                        newDIV.classList.add("eventDay"); 
+                        newDIV.classList.add("birthDay"); 
                     }
                 }
+
+                // 일반 이벤트 추가
+                filterEventList.forEach(element => {
+                    if(nowDay.getDate() == element[1].substr(2)) {
+                        newDIV.classList.add("eventDay"); 
+                    }
+                });
             }
 
 
@@ -213,6 +269,14 @@
                     newCell.innerHTML = key;
                 }
             }
+
+            filterEventList.forEach(element => {
+                if(newDIV.innerHTML == element[1].substr(2)) {
+                    const newRow = eventTb.insertRow();
+                    const newCell = newRow.insertCell(0);
+                    newCell.innerHTML = element[0];
+                }
+            });
 
         }
 
@@ -274,7 +338,7 @@
             </tbody>
         </table>
     </div>
-    <div class="eventDiv">
+    <div class="eventDiv" style="font-size: 25px; font-weight: bold;">
         이벤트
         <table id="eventTable">
         </table>

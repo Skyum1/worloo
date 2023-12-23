@@ -4,7 +4,9 @@
 	$result = mysqli_query($con, "SELECT NAME
                                        , DATE
                                        , REMARK 
-									FROM EVENT_DAY ");
+                                       , USE_YN
+									FROM EVENT_DAY 
+                                   WHERE USE_YN = 'Y'; ");
 										
 	$returnVal = array();
 	
@@ -14,6 +16,7 @@
 		$t->date = $row['DATE'];
         $t->name = $row['NAME'];
         $t->remark = $row['REMARK'];
+        $t->useYn = $row['USE_YN'];
         $returnVal[] = $t;
         unset($t);
     }
