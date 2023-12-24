@@ -121,6 +121,7 @@
 
     <script>
 		var ManageId = "";
+		
 
 		$(document).ready(function () {
 			
@@ -278,8 +279,37 @@
 			$("#btn_date").click(function() {
 				location.href = "./pages/updateDate.html";
 			});
+			
 		});
 		
+		// table 정렬
+		function sortTable(columnIndex) {
+			var table, rows, switching, i, x, y, shouldSwitch;
+			table = document.getElementById("tbRank");
+			switching = true;
+
+			while (switching) {
+				switching = false;
+				rows = table.getElementsByTagName("tr");
+
+				for (i = 1; i < rows.length - 1; i++) {
+				shouldSwitch = false;
+				x = rows[i].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+				y = rows[i + 1].getElementsByTagName("td")[columnIndex].textContent.toLowerCase();
+
+				if (x > y) {
+					shouldSwitch = true;
+					break;
+				}
+				}
+
+				if (shouldSwitch) {
+				rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+				switching = true;
+				}
+			}
+		}
+
 		function getMembers() {
 			$.ajax({
 				url: "./php/selectUser.php",
@@ -353,15 +383,15 @@
 		명단
 	</div>
 	<div class="tableRank" border:1>
-		<table class="tbRank">
-			<th style="width:5%;"> 이름 </th>
-			<th style="width:5%;"> 나이 </th>
-			<th style="width:5%;"> 성별 </th>
-			<th style="width:30%;"> 출퇴시간 </th>
-			<th style="width:10%;"> 직업 </th>
-			<th style="width:15%;"> 분야 </th>
-			<th style="width:10%;"> 지역 </th>
-			<th style="width:15%;"> 기타 </th>
+		<table class="tbRank" id="tbRank">
+			<th style="width:5%;" onclick="sortTable(0)"> 이름 </th>
+			<th style="width:5%;" onclick="sortTable(1)"> 나이 </th>
+			<th style="width:5%;" onclick="sortTable(2)"> 성별 </th>
+			<th style="width:30%;" onclick="sortTable(3)"> 출퇴시간 </th>
+			<th style="width:10%;" onclick="sortTable(4)"> 직업 </th>
+			<th style="width:15%;" onclick="sortTable(5)"> 분야 </th>
+			<th style="width:10%;" onclick="sortTable(6)"> 지역 </th>
+			<th style="width:15%;" onclick="sortTable(7)"> 기타 </th>
 		</table>
 	</div>
 	<div class="modal">

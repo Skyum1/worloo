@@ -23,7 +23,36 @@
 										, USE_YN
 										, REMARK 
 									FROM USER
-								   WHERE USE_YN != 'N'");
+									WHERE USE_YN != 'N'
+									AND NAME IN (SELECT NAME FROM MANAGER WHERE GRADE = '방장')
+									UNION ALL 
+									SELECT NAME
+										, SEX
+										, AGE
+										, WORK_TIME
+										, WORK_NAME
+										, WORK_CATEGORY
+										, AREA
+										, BIRTH
+										, USE_YN
+										, REMARK 
+									FROM USER
+									WHERE USE_YN != 'N'
+									AND NAME IN (SELECT NAME FROM MANAGER WHERE GRADE = '부방장')
+									UNION ALL
+									SELECT NAME
+										, SEX
+										, AGE
+										, WORK_TIME
+										, WORK_NAME
+										, WORK_CATEGORY
+										, AREA
+										, BIRTH
+										, USE_YN
+										, REMARK 
+									FROM USER
+									WHERE USE_YN != 'N'
+									AND NAME NOT IN (SELECT NAME FROM MANAGER)");
 										
 	$returnVal = array();
 	
