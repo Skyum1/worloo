@@ -17,7 +17,13 @@
     <br>
     <div id="result" style="position: absolute; margin-top: 20px;">로딩중입니다......</div>
     <br>
-    <div id="resultList" class="resultList" style="margin-top: 100px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
+    <div class="subTitle" style="margin-top: 100px; font-family: 'Jua', sans-serif; color: #000b63; font-size: 50px;"> 채팅 수 순위!</div>
+    <br>
+    <div id="resultList" class="resultList" style="margin-top: 10px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
+    <br>
+    <div class="subTitle" style="margin-top: 10px; font-family: 'Jua', sans-serif; color: #000b63; font-size: 50px;"> 글자 수 순위!</div>
+    <br>
+    <div id="lengthList" class="resultList" style="margin-top: 10px; font-family: 'Jua', sans-serif; color: #37374f;"></div>
     <canvas id="pie-chart" width="800" height="800"></canvas>
     <canvas id="line-chart" height="150"></canvas>
     <script>
@@ -40,7 +46,8 @@
         });
 
         // 모든 데이터
-        var chatDateCnt = {};
+        var chatDateCnt = {}; // 채팅 수
+        var chatDateLength = {}; // 채팅 글자 수
         // click count
         var clickCnt = 0;
         document.getElementById('fileInput').addEventListener('change', function(event) {
@@ -59,48 +66,66 @@
 
         function analyzeChatLog(chat) {
 
+            // 채팅 수
             var chatDay = {};
+            // 채팅 글자 수
+            var chatLength = {};
             var curDate = "1900년 1월 1일";
             var startDate = null;
+            // user 정규표현식
             const userRegex = /\[(.*? \d{2}? .*?)\]/g;
-            
+            // 채팅 정규표현식
+            var chatRegex = /\[.*\] \[.*\] (.*)/;
+
             const dateRegex = /(--------------- \d{4}년 \d{1,2}월 \d{1,2}일 .*?요일 ---------------)/g;
             const chatList = chat.split('\n');
             const resultElement = document.getElementById('result');
 
             // 데이터 초기화
-            chatDateCnt = {};
+            chatDateCnt = {}; // 날짜 별 채팅 수
+            chatDateLength = {}; // 날짜 별 채팅 글자 수
             for(const chatTemp of chatList) {
                 var date = chatTemp.match(dateRegex);
                 var user = chatTemp.match(userRegex);
+
                 // 날짜 바뀔 때
                 if(date != null) {
                     var dt = date[0].replaceAll('-','');
                     dt = dt.slice(1,-4).replaceAll('년 ','-').replaceAll('월 ','-').replaceAll('일 ','');
-                    if(curDate != "1900년 1월 1일") chatDateCnt[curDate] = chatDay;
+                    if(curDate != "1900년 1월 1일") { 
+                        chatDateCnt[curDate] = chatDay;
+                        chatDateLength[curDate] = chatLength;
+                    }
                     curDate = dt;
                     chatDay = {};
+                    chatLength = {};
 
                     if(startDate == null) {
                         startDate = dt;
                     }
                 }
-                
-
+            
                 if(user != null) {
+                    // 채팅 길이 재기
+                    var chatLen = 0;
+                    var chatting = chatTemp.match(chatRegex)[1];
+                    if(chatting != null) {
+                        if(chatting.length >= 100) chatLen = 100;
+                        else chatLen = chatting.length;
+                    }
+
+                    // 채팅 수 추가
                     if(user[0] in chatDay) chatDay[user[0]]++;
                     else chatDay[user[0]] = 1;
+
+                    // 채팅 글자 수 추가
+                    if(user[0] in chatLength) chatLength[user[0]]+= chatLen;
+                    else chatLength[user[0]] = chatLen;
                 }                
             }
 
             chatDateCnt[curDate] = chatDay;
-
-            for(var key in chatDateCnt) {
-                var str = "";
-                for(var value in chatDateCnt[key]) {
-                    str += value + chatDateCnt[key][value] + '\n';
-                }
-            }
+            chatDateLength[curDate] = chatLength;
 
             // 잘못된 파일 혹은 채팅로그가 없을 시 데이터x 알림
             if(chatDateCnt == null) {
@@ -149,11 +174,18 @@
         }
 
         function showResult() {
+            // 채팅 수
             var resultDic = {};
+            // 채팅 글자 수
+            var resultLengthDic = {};
+
             var startDt = new Date(document.getElementById("startDate").value);
             var endDt = new Date(document.getElementById("endDate").value);
             var sorted;
+            // 채팅 수 html
             var resultHtml = "";
+            // 채팅 글자 수 html
+            var resultLengthHtml = "";
             var rank = 1;
 
             // 값 없을 시 return;
@@ -162,16 +194,23 @@
                 return;
             }
 
+            // 채팅 수 계산. 첫 날부터 끝까지 계산
             for(var date in chatDateCnt) {
                 var cur = new Date(convertDate(date));
                 if(cur >= startDt && cur <= endDt) {
                     for(var user in chatDateCnt[date]) {
+                        // 채팅 수
                         if(user in resultDic) resultDic[user] += chatDateCnt[date][user];
                         else resultDic[user] = chatDateCnt[date][user];
+
+                        // 채팅 글자 수
+                        if(user in resultLengthDic) resultLengthDic[user] += chatDateLength[date][user];
+                        else resultLengthDic[user] = chatDateLength[date][user];
                     }
                 }
             }
 
+            // 채팅 수 출력
             sorted = Object.entries(resultDic).sort((a,b) => b[1] - a[1]);
             for(var value of sorted) {
                 if(rank <= 3) {
@@ -182,8 +221,23 @@
                 }
                 rank++;
             }
+
+            // 글자 수 순위를 위하여 순위 초기화
+            rank = 1;
+            // 채팅 글자 수 출력
+            sorted = Object.entries(resultLengthDic).sort((a,b) => b[1] - a[1]);
+            for(var value of sorted) {
+                if(rank <= 3) {
+                    resultLengthHtml += "<h" + rank + ">" + rank + "등!!! " + value[0] + " : " + value[1] + "</h" + rank + ">" + '<br>';
+                }
+                else {
+                    resultLengthHtml += rank + ". " + value[0] + " : " + value[1] + '<br>';
+                }
+                rank++;
+            }
             
             document.getElementById('resultList').innerHTML = resultHtml;
+            document.getElementById('lengthList').innerHTML = resultLengthHtml;
             makeChart(sorted);
         }
 
