@@ -282,7 +282,8 @@
 
         function eventClear() {
             const eventTb = document.getElementById("eventTable");
-            for(var i = 0; i <= eventTb.rows.length; i++) {
+            var len = eventTb.rows.length;
+            for(var i = 0; i <= len; i++) {
                 eventTb.deleteRow(-1);
             }
         }
