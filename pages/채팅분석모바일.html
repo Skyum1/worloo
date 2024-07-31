@@ -10,7 +10,7 @@
     <title>KakaoTalk Chat Analysis</title>
 </head>
 <body>
-    <h1>채팅 통계</h1>
+    <h1>모바일용 채팅 통계</h1>
     <div class="filebox">
         <input type="file" id="fileInput">
     </div>
@@ -28,7 +28,7 @@
     <canvas id="line-chart" height="150"></canvas>
     <script>
         //GitHub raw 파일의 URL
-        const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/talkTest.txt";
+        const rawFileURL = "https://raw.githubusercontent.com/Skyum1/worloo/master/mobileTest.txt";
 
         // fetch 함수를 사용하여 파일 가져오기
         fetch(rawFileURL)
@@ -64,6 +64,25 @@
             }
         });
 
+        function convertDt(dateString) {
+            // 정규 표현식으로 날짜 부분 추출
+            const datePattern = /(\d{4})년\s(\d{1,2})월\s(\d{1,2})일/;
+            const match = dateString.match(datePattern);
+
+            if (match) {
+                // 년, 월, 일을 추출
+                const year = match[1];
+                const month = match[2].padStart(2, '0'); // 월을 2자리로 맞춤
+                const day = match[3].padStart(2, '0');   // 일을 2자리로 맞춤
+
+                // 원하는 형식으로 변환
+                return `${year}-${month}-${day}`;
+            } else {
+                // 매칭되지 않으면 원본 반환
+                return dateString;
+            }
+        }
+
         function analyzeChatLog(chat) {
 
             // 채팅 수
@@ -75,55 +94,59 @@
             // user 정규표현식
             const userRegex = /\[(.*? \d{2}? .*?)\]/g;
             // 채팅 정규표현식
-            var chatRegex = /\[.*\] \[.*\] (.*)/;
+            var chatRegex = /^\d{4}년 \d{1,2}월 \d{1,2}일 (오전|오후) \d{1,2}:\d{2}, ([^:]+) :/;
 
             const dateRegex = /(--------------- \d{4}년 \d{1,2}월 \d{1,2}일 .*?요일 ---------------)/g;
-            const chatList = chat.split('\n');
+            const chatList = chat.trim().split('\n');
             const resultElement = document.getElementById('result');
-
+            
             // 데이터 초기화
             chatDateCnt = {}; // 날짜 별 채팅 수
             chatDateLength = {}; // 날짜 별 채팅 글자 수
-            for(const chatTemp of chatList) {
-                var date = chatTemp.match(dateRegex);
-                var user = chatTemp.match(userRegex);
 
-                // 날짜 바뀔 때
-                if(date != null) {
-                    var dt = date[0].replaceAll('-','');
-                    dt = dt.slice(1,-4).replaceAll('년 ','-').replaceAll('월 ','-').replaceAll('일 ','');
-                    if(curDate != "1900년 1월 1일") { 
-                        chatDateCnt[curDate] = chatDay;
-                        chatDateLength[curDate] = chatLength;
-                    }
-                    curDate = dt;
-                    chatDay = {};
-                    chatLength = {};
+            chatList.forEach(line => {
+                const match = line.match(chatRegex);
+                if (match) {
+                    const dt = convertDt(match[0].split(',')[0]);
+                    const user = match[2].trim();
+                    const content = match.input.replaceAll(match[0].trim(), '').trim();
 
-                    if(startDate == null) {
-                        startDate = dt;
+                    // 날짜 바뀔 때
+                    if(curDate != dt) {
+                        if(curDate != "1900년 1월 1일") { 
+                            chatDateCnt[dt] = chatDay;
+                            chatDateLength[dt] = chatLength;
+                        }
+
+                        curDate = dt;
+                        chatDay = {};
+                        chatLength = {};
+
+                        if(startDate == null) {
+                            startDate = dt;
+                        }
                     }
+
+                    if(user != null) {
+                        // 채팅 길이 재기
+                        var chatLen = 0;
+                        if(content != null) {
+                            if(content.length >= 100) chatLen = 100;
+                            else chatLen = content.length;
+                        }
+
+                        // 채팅 수 추가
+                        if(user in chatDay) chatDay[user]++;
+                        else chatDay[user] = 1;
+
+                        // 채팅 글자 수 추가
+                        if(user in chatLength) chatLength[user]+= chatLen;
+                        else chatLength[user] = chatLen;
+                    }         
                 }
+            });
+            console.log(chatDateCnt)
             
-                if(user != null) {
-                    // 채팅 길이 재기
-                    var chatLen = 0;
-                    var chatting = chatTemp.match(chatRegex)[1];
-                    if(chatting != null) {
-                        if(chatting.length >= 100) chatLen = 100;
-                        else chatLen = chatting.length;
-                    }
-
-                    // 채팅 수 추가
-                    if(user[0] in chatDay) chatDay[user[0]]++;
-                    else chatDay[user[0]] = 1;
-
-                    // 채팅 글자 수 추가
-                    if(user[0] in chatLength) chatLength[user[0]]+= chatLen;
-                    else chatLength[user[0]] = chatLen;
-                }                
-            }
-
             chatDateCnt[curDate] = chatDay;
             chatDateLength[curDate] = chatLength;
 
@@ -139,22 +162,10 @@
             resultElement.innerHTML += "<input type='date' id='endDate'></input><br>";
             resultElement.innerHTML += "<button id='searchBtn' onclick='showResult();' class='btn red rounded' style='margin-top:20px; text-align:center;'>통계 보기!!!!</button>";
             
-            document.getElementById("startDate").value = convertDate(startDate);
-            document.getElementById("endDate").value = convertDate(curDate);
             
-        }
-
-        function convertDate(date) {
-            var dt = date.split('-');
-            var result = "";
-            if(dt.length != 3) return;
-            if(dt[1] < 10) result += dt[0] + '-0' + dt[1];
-            else result += dt[0] + '-' + dt[1];           
-
-            if(dt[2] < 10) result += '-0' + dt[2];
-            else result += '-' + dt[2];  
-
-            return result;
+            document.getElementById("startDate").value = startDate;
+            document.getElementById("endDate").value = curDate;
+            
         }
 
         // 색깔코드 랜덤으로 생성
@@ -196,7 +207,7 @@
 
             // 채팅 수 계산. 첫 날부터 끝까지 계산
             for(var date in chatDateCnt) {
-                var cur = new Date(convertDate(date));
+                var cur = new Date(date);
                 if(cur >= startDt && cur <= endDt) {
                     for(var user in chatDateCnt[date]) {
                         // 채팅 수
@@ -311,7 +322,7 @@
             // label 초기화
             listLabel = [];
             for(var data in chatDateCnt) {
-                var cur = new Date(convertDate(data));
+                var cur = new Date(data);
                 if(cur < startDt || cur > endDt) continue;
 
                 
